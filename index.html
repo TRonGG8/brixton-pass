@@ -407,12 +407,84 @@ footer{padding-block:24px 40px;font-size:12px;color:var(--muted)}
 .out-msg{font-size:13px;color:var(--muted);min-height:1em}
 .out-msg:empty{display:none}
 
+/* ---------- FUN: reveal, badges, playground ---------- */
+.reveal-cta{margin-top:4px;display:grid;gap:8px;background:linear-gradient(135deg,var(--navy),var(--facade));color:#fff;border-radius:14px;padding:16px;position:relative;overflow:hidden}
+.reveal-cta::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;border:14px solid rgba(255,255,255,.08)}
+.reveal-cta b{font-family:var(--f-disp);font-size:18px}
+.reveal-cta p{margin:0;font-size:13px;color:#d6dbf5}
+.btn-reveal{justify-self:start;background:var(--orange);color:#fff;border:0;border-radius:10px;padding:11px 20px;font-weight:700;font-size:16px;font-family:var(--f-disp);box-shadow:0 8px 20px -8px rgba(240,106,29,.8);animation:nudge 2.6s ease-in-out infinite}
+@keyframes nudge{0%,80%,100%{transform:none}85%{transform:translateY(-3px) rotate(-1.5deg)}90%{transform:translateY(0) rotate(1.5deg)}}
+.rv{position:fixed;inset:0;z-index:50;display:none;place-items:center;background:radial-gradient(circle at 50% 40%,rgba(40,52,130,.92),rgba(6,10,36,.96));padding:16px}
+.rv.open{display:grid}
+.rv canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.rv-card{position:relative;width:min(440px,100%);text-align:center;color:#fff;display:grid;gap:12px;justify-items:center}
+.rv-env{width:220px;height:150px;position:relative;perspective:600px}
+.rv-env .back{position:absolute;inset:0;background:#e9ecf8;border-radius:10px;box-shadow:0 20px 40px -10px rgba(0,0,0,.6)}
+.rv-env .flap{position:absolute;left:0;right:0;top:0;height:80px;background:#d3d8ef;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .5s ease .2s;z-index:3;border-radius:10px 10px 0 0}
+.rv-env .seal{position:absolute;left:50%;top:58px;width:34px;height:34px;margin-left:-17px;border-radius:50%;background:var(--orange);z-index:4;transition:opacity .2s;display:grid;place-items:center;font:700 14px var(--f-disp);color:#fff}
+.rv-env .paper{position:absolute;left:14px;right:14px;top:14px;height:120px;background:#fff;border-radius:6px;z-index:2;display:grid;place-items:center;transition:transform .7s cubic-bezier(.2,.8,.2,1) .55s}
+.rv-env .paper .chip{width:84px;height:84px;font-size:56px;border-radius:14px;transform:scale(0);transition:transform .45s cubic-bezier(.3,1.6,.5,1) 1.15s}
+.rv-env .front{position:absolute;inset:0;z-index:3;background:linear-gradient(160deg,#eef0fa,#dfe3f4);clip-path:polygon(0 35%,50% 72%,100% 35%,100% 100%,0 100%);border-radius:10px}
+.rv.go .flap{transform:rotateX(180deg);z-index:1}.rv.go .seal{opacity:0}
+.rv.go .paper{transform:translateY(-92px)}.rv.go .paper .chip{transform:scale(1)}
+.rv-stamp{font:800 30px var(--f-disp);letter-spacing:.06em;border:4px solid currentColor;border-radius:10px;padding:2px 16px;transform:rotate(-8deg) scale(3);opacity:0;transition:transform .35s cubic-bezier(.5,1.8,.6,1) 1.6s,opacity .2s 1.6s}
+.rv.go .rv-stamp{transform:rotate(-8deg) scale(1);opacity:1}
+.rv-t{opacity:0;transform:translateY(10px);transition:all .4s 1.9s}.rv.go .rv-t{opacity:1;transform:none}
+.rv-t h3{font-size:22px;color:#fff}.rv-t p{margin:4px 0 0;color:#cfd5f5;font-size:14px}
+.rv-badges{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.rv-act{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.rv-act .btn{font-size:15px}
+.rv .x{position:absolute;top:max(12px,env(safe-area-inset-top,0px));right:12px;width:40px;height:40px;border-radius:10px;border:0;background:rgba(255,255,255,.14);color:#fff;font-size:22px;z-index:2}
+.bdg{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:4px 10px 4px 4px;font-size:12.5px;font-weight:600;background:var(--paper);border:1px solid var(--line);color:var(--ink);transition:transform .2s}
+.bdg i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;background:linear-gradient(135deg,var(--orange),#ffb27a);color:#fff}
+.bdg.off{opacity:.45;filter:grayscale(1)}
+.bdg.new{animation:bdgpop .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes bdgpop{0%{transform:scale(.5)}100%{transform:none}}
+.bdgs{display:flex;flex-wrap:wrap;gap:6px}
+.xp{height:8px;border-radius:8px;background:var(--line);overflow:hidden}
+.xp span{display:block;height:100%;background:linear-gradient(90deg,var(--orange),var(--facade));border-radius:8px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.unlock{position:fixed;left:50%;top:max(14px,env(safe-area-inset-top,0px));z-index:45;transform:translate(-50%,-140%);background:var(--navy);color:#fff;border-radius:30px;padding:8px 16px 8px 8px;display:flex;gap:10px;align-items:center;font-size:14px;box-shadow:0 14px 30px -10px rgba(0,0,0,.5);transition:transform .45s cubic-bezier(.3,1.5,.5,1)}
+.unlock.show{transform:translate(-50%,0)}
+.unlock i{font-style:normal;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--orange)}
+.chip.lg.pop{animation:pop .5s cubic-bezier(.3,1.6,.5,1)}
+/* playground */
+.play{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:22px}
+@media (max-width:860px){.play{grid-template-columns:minmax(0,1fr)}}
+.sl{display:grid;gap:4px}
+.sl label{display:flex;justify-content:space-between;gap:10px;font-size:14px;font-weight:600}
+.sl label output{font-family:var(--f-mono);color:var(--navy-2)}
+.sl input[type=range]{width:100%;height:28px;-webkit-appearance:none;appearance:none;background:transparent!important;margin:0;border:0!important;padding:0!important;box-shadow:none!important;min-height:0}
+.sl input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:8px;background:linear-gradient(90deg,var(--orange) var(--p,50%),var(--line) var(--p,50%))}
+.sl input[type=range]::-moz-range-track{height:8px;border-radius:8px;background:var(--line)}
+.sl input[type=range]::-moz-range-progress{height:8px;border-radius:8px;background:var(--orange)}
+.sl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;margin-top:-8px;border-radius:50%;background:#fff;border:3px solid var(--orange);box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.sl input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid var(--orange)}
+.sl small{color:var(--muted);font-size:12px}
+.sliders{display:grid;gap:12px}
+.pl-out{border-radius:14px;padding:18px;background:linear-gradient(160deg,var(--navy),var(--facade));color:#fff;display:grid;gap:12px;align-content:start;position:relative;overflow:hidden}
+.pl-out::before{content:"";position:absolute;left:-40px;bottom:-60px;width:260px;height:160px;border-radius:50%;border:16px solid rgba(255,255,255,.07)}
+.pl-g{display:flex;gap:14px;align-items:center}
+.pl-g .chip{width:78px;height:78px;font-size:50px;border-radius:14px;transition:background .3s}
+.pl-g b{font:700 20px var(--f-disp);display:block}
+.pl-g small{color:#d6dbf5;font-size:13px}
+.pl-meter{position:relative;height:14px;border-radius:8px;background:linear-gradient(90deg,var(--gA) 0 35%,var(--gB) 35% 40%,var(--gC) 40% 50%,var(--gD) 50% 60%,var(--gF) 60%)}
+.pl-meter i{position:absolute;top:-5px;width:4px;height:24px;margin-left:-2px;background:#fff;border-radius:2px;box-shadow:0 0 0 2px rgba(0,0,0,.25);transition:left .3s cubic-bezier(.2,.8,.2,1)}
+.pl-meter::after{content:"ผ่าน 40%";position:absolute;left:40%;top:18px;font-size:11px;transform:translateX(-50%);color:#fff;font-weight:700}
+.pl-rows{display:grid;gap:4px;font-size:13px;margin-top:10px}
+.pl-rows div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed rgba(255,255,255,.2);padding-bottom:3px}
+.pl-rows b{font-family:var(--f-mono)}
+.pl-delta{font-size:14px;background:rgba(255,255,255,.12);border-radius:10px;padding:8px 10px}
+.pl-presets{display:flex;flex-wrap:wrap;gap:6px}
+.pl-presets button{border:1px solid var(--line);background:var(--tint);color:var(--ink);border-radius:20px;padding:4px 12px;font-size:13px}
+.pl-presets button:hover{border-color:var(--orange)}
+@media (prefers-reduced-motion:reduce){.rv *{transition:none!important}.btn-reveal{animation:none}}
+
 .print-only{display:none}
 @media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
 
 /* ---------- PRINT: detailed paper form ---------- */
 @media print{
-  .out-sheet,.brx-foot,.facts,.hero-edge{display:none!important}
+  .out-sheet,.brx-foot,.facts,.hero-edge,.rv,.unlock,.reveal-cta,#play{display:none!important}
   @page{size:A4;margin:10mm 11mm}
   body{font-size:10.5px;line-height:1.45;background:#fff;color:#111}
   .screen-only{display:none!important}
@@ -506,7 +578,7 @@ footer{padding-block:24px 40px;font-size:12px;color:var(--muted)}
   <div><b>สระ · ฟิตเนส</b><small>รปภ. + CCTV 24 ชม.</small></div>
 </div>
 <nav class="toc" aria-label="สารบัญ">
-  <a href="#screen">ใบกรองและใบเกรด</a><a href="#plan">Financial Plan</a><a href="#system">แผนตามเกรด A–F</a><a href="#paper">ตารางเกรดฉบับกระดาษ</a><a href="#ideas">ข้อเสนอแนะ</a>
+  <a href="#screen">ใบกรองและใบเกรด</a><a href="#plan">Financial Plan</a><a href="#play">ลองเล่น ถ้า...</a><a href="#system">แผนตามเกรด A–F</a><a href="#paper">ตารางเกรดฉบับกระดาษ</a><a href="#ideas">ข้อเสนอแนะ</a>
 </nav>
 
 <section id="screen">
@@ -518,6 +590,7 @@ footer{padding-block:24px 40px;font-size:12px;color:var(--muted)}
 
   <div class="toolbar">
     <button class="btn btn-pri" id="bSave" type="button">บันทึกใบกรอง</button>
+    <button class="btn btn-line" type="button" data-reveal>ประกาศผล</button>
     <button class="btn btn-line local-only" id="bPrint" type="button">พิมพ์ใบเกรดที่กรอกแล้ว</button>
     <button class="btn btn-line local-only" id="bPrintBlank" type="button">พิมพ์ใบกรองเปล่า</button>
     <button class="btn btn-line local-only" id="bCsv" type="button">ส่งออกรายการ (CSV)</button>
@@ -661,6 +734,7 @@ footer{padding-block:24px 40px;font-size:12px;color:var(--muted)}
           <label><input type="checkbox" id="pdpa">ลูกค้ายินยอมให้ใช้ข้อมูลนี้เพื่อประเมินความพร้อมกู้ (PDPA)</label>
         </div>
       </div>
+      <div class="reveal-cta"><b>กรอกครบแล้ว? ถึงเวลาประกาศผล</b><p>เปิดซองใบเกรดของลูกค้า ดูว่าผ่านเกณฑ์ DSR 40% ไหม และได้เหรียญอะไรบ้าง</p><button type="button" class="btn-reveal" data-reveal>ประกาศผล</button></div>
     </form>
 
     <div class="rcol">
@@ -718,7 +792,8 @@ footer{padding-block:24px 40px;font-size:12px;color:var(--muted)}
         </div>
         <div class="dk-box"><div class="dk-lbl">เงินก้อนวันโอน</div><b class="dk-big num" id="dkCash"></b><div class="sub" id="dkCashSub"></div></div>
         <div class="dk-box"><div class="dk-lbl">เงินสำรองฉุกเฉิน</div><div class="ring"><svg viewBox="0 0 42 42" aria-hidden="true"><circle cx="21" cy="21" r="16" fill="none" stroke="var(--line)" stroke-width="5"/><circle id="dkRing" cx="21" cy="21" r="16" fill="none" stroke="var(--gA)" stroke-width="5" stroke-linecap="round" stroke-dasharray="0 101" transform="rotate(-90 21 21)"/></svg><div><b class="num" id="dkSav"></b><div class="sub">เป้าหมาย 6 เท่าค่างวด</div></div></div></div>
-        <div class="dk-box dk-wide"><div class="dk-lbl">ความคืบหน้าการกรอก <span class="num" id="dkProg"></span></div><ol class="steps" id="dkSteps"></ol></div>
+        <div class="dk-box dk-wide"><div class="dk-lbl">ความคืบหน้าการกรอก <span class="num" id="dkProg"></span></div><div class="xp"><span id="dkXp"></span></div><ol class="steps" id="dkSteps"></ol></div>
+        <div class="dk-box dk-wide"><div class="dk-lbl">เหรียญที่ได้ <span class="num" id="bdgN"></span></div><div class="bdgs" id="bdgs"></div></div>
         <div class="dk-box dk-wide dk-tip"><div class="dk-lbl" id="dkTipT">คำแนะนำ Pass Officer</div><p id="dkTip"></p></div>
       </div>
     </aside>
@@ -747,6 +822,31 @@ footer{padding-block:24px 40px;font-size:12px;color:var(--muted)}
       <p class="hint" id="cfNote"></p>
     </div>
     <div class="cf-side" id="cfSide"></div>
+  </div>
+</section>
+
+<section id="play">
+  <div class="sec-head">
+    <span class="eyebrow">ลองเล่นก่อนยื่นจริง</span>
+    <h2>ถ้า... จะได้เกรดอะไร</h2>
+    <p>เลื่อนแถบดูว่าต้องเพิ่มรายได้ หาผู้กู้ร่วม ปิดหนี้ หรือเลือกห้องราคาเท่าไหร่ ถึงจะผ่านเกณฑ์ DSR 40% เริ่มจากข้อมูลของลูกค้าคนปัจจุบัน แต่ไม่แก้ใบกรองจริง</p>
+  </div>
+  <div class="play">
+    <div class="sliders">
+      <div class="pl-presets"><button type="button" data-pl="reset">เริ่มจากข้อมูลจริง</button><button type="button" data-pl="co">ชวนพ่อแม่กู้ร่วม</button><button type="button" data-pl="debt">ปิดหนี้หมด</button><button type="button" data-pl="cheap">เลือกห้องถูกลง</button></div>
+      <div class="sl"><label for="plInc">รายได้ที่นับได้ต่อเดือน<output id="oInc"></output></label><input type="range" id="plInc" min="8000" max="80000" step="500"></div>
+      <div class="sl"><label for="plCo">รายได้ผู้กู้ร่วมเพิ่ม<output id="oCo"></output></label><input type="range" id="plCo" min="0" max="50000" step="500"><small>พ่อแม่ คู่สมรส หรือพี่น้องที่กู้ร่วมได้</small></div>
+      <div class="sl"><label for="plDebt">หนี้เดิมต่อเดือน<output id="oDebt"></output></label><input type="range" id="plDebt" min="0" max="20000" step="100"><small>เลื่อนลง = ปิดหนี้ก่อนยื่น</small></div>
+      <div class="sl"><label for="plPrice">ราคาห้อง / วงเงินกู้<output id="oPrice"></output></label><input type="range" id="plPrice" min="1200000" max="2800000" step="10000"></div>
+      <div class="sl"><label for="plRate">ดอกเบี้ยเฉลี่ย<output id="oRate"></output></label><input type="range" id="plRate" min="1.79" max="6.49" step="0.1"></div>
+      <div class="sl"><label for="plTerm">ระยะกู้<output id="oTerm"></output></label><input type="range" id="plTerm" min="5" max="30" step="1"></div>
+    </div>
+    <div class="pl-out" aria-live="polite">
+      <div class="pl-g"><span class="chip" id="plChip">B</span><div><b id="plTitle"></b><small id="plSub"></small></div></div>
+      <div><div class="pl-meter"><i id="plNeedle"></i></div></div>
+      <div class="pl-rows" id="plRows"></div>
+      <div class="pl-delta" id="plDelta"></div>
+    </div>
   </div>
 </section>
 
@@ -803,6 +903,18 @@ footer{padding-block:24px 40px;font-size:12px;color:var(--muted)}
 </div>
 </div>
 
+<div class="rv" id="rv" role="dialog" aria-modal="true" aria-label="ประกาศผล">
+  <canvas id="confetti"></canvas>
+  <button type="button" class="x" id="rvX" aria-label="ปิด">×</button>
+  <div class="rv-card">
+    <div class="rv-env"><div class="back"></div><div class="paper"><span class="chip" id="rvChip">A</span></div><div class="front"></div><div class="flap"></div><div class="seal">BP</div></div>
+    <div class="rv-stamp" id="rvStamp">PASS</div>
+    <div class="rv-t"><h3 id="rvTitle"></h3><p id="rvSub"></p></div>
+    <div class="rv-t rv-badges" id="rvBadges"></div>
+    <div class="rv-t rv-act"><button type="button" class="btn btn-pri" id="rvSheet">ดูใบเกรด</button><button type="button" class="btn btn-ghost" id="rvOut">พิมพ์ / PDF</button></div>
+  </div>
+</div>
+<div class="unlock" id="unlock" role="status"><i>★</i><span id="unlockT"></span></div>
 <div class="out-sheet" id="outSheet" role="dialog" aria-modal="true" aria-labelledby="outT">
   <div class="out-card">
     <h3><span id="outT">พิมพ์ / บันทึก PDF</span><button type="button" id="outX" aria-label="ปิด">×</button></h3>
@@ -1431,6 +1543,82 @@ $('oBlank').addEventListener('click',async()=>{const b=$('oBlank');if(await useR
 $('oPrint').addEventListener('click',()=>{if(framed){outMsg('หน้าต่างนี้สั่งพิมพ์ตรงไม่ได้ ใช้ PDF ด้านบน หรือเปิดเว็บไซต์ / ไฟล์ brixton-pass-local.html');return;}closeOut();setTimeout(()=>$('bPrint').click(),80);});
 $('oCsv').addEventListener('click',()=>{if(framed){outMsg('ส่งออก CSV ได้ในเว็บไซต์หรือไฟล์ local');return;}$('bCsv').click();});
 $('bOut').addEventListener('click',openOut);
+
+
+/* ===== FUN layer ===== */
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const BADGES=[
+ ['dsr','ผ่านเกณฑ์ 40%',d=>d.dsr<=40],
+ ['debt','หนี้บาง',d=>d.income>0&&d.debt/d.income<=0.1],
+ ['save','เงินสำรองแน่น',d=>d.savM>=6],
+ ['credit','เครดิตใส',d=>d.credit==='clean'&&!d.restr&&!d.sued],
+ ['docs','เอกสารครบ',d=>d.docMiss.length===0],
+ ['team','ทีมกู้ร่วม',d=>!!d.coRel&&d.coInc>0],
+ ['budget','งบเหลือ 20%',d=>d.residPct>=20],
+ ['term','กู้เต็ม 25 ปี+',d=>d.term>=25]];
+const ICON={dsr:'%',debt:'↓',save:'฿',credit:'✓',docs:'▤',team:'+',budget:'◎',term:'∞'};
+let prevBadges=null,unlockT;
+function badgeHtml(b,on,isNew){return `<span class="bdg ${on?'':'off'} ${isNew?'new':''}"><i>${ICON[b[0]]}</i>${b[1]}</span>`;}
+function renderFun(d){
+  const got=BADGES.filter(b=>{try{return b[2](d);}catch(e){return false;}}).map(b=>b[0]);
+  const fresh=prevBadges?got.filter(k=>!prevBadges.includes(k)):[];
+  $('bdgs').innerHTML=BADGES.map(b=>badgeHtml(b,got.includes(b[0]),fresh.includes(b[0]))).join('');
+  $('bdgN').textContent=got.length+'/'+BADGES.length;
+  if(fresh.length&&prevBadges!==null&&!suppressUnlock){const b=BADGES.find(x=>x[0]===fresh[0]);$('unlockT').textContent='ได้เหรียญ "'+b[1]+'"';$('unlock').classList.add('show');clearTimeout(unlockT);unlockT=setTimeout(()=>$('unlock').classList.remove('show'),2200);}
+  prevBadges=got;d.badges=got;
+  const done=stepDone(d).filter(Boolean).length;$('dkXp').style.width=(done/8*100)+'%';
+  ['kA','kB','kMax','kCash','dkCash'].forEach(id=>countUp($(id)));
+  plFrom(d,false);
+}
+let suppressUnlock=false;
+function countUp(el){if(!el)return;const txt=el.textContent;const m=txt.match(/^(-?[\d,]+)(.*)$/);if(!m)return;const to=parseFloat(m[1].replace(/,/g,''));const from=el._v;el._v=to;
+  if(RM||from===undefined||from===to)return;const t0=performance.now(),dur=450;
+  const step=t=>{const k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,3);if(el._v!==to)return;el.textContent=fmt(from+(to-from)*e)+m[2];if(k<1)requestAnimationFrame(step);};requestAnimationFrame(step);}
+const _render=render;render=function(){_render();try{renderFun(window.__d);}catch(e){console.error(e);}};
+/* reveal */
+function confetti(){if(RM)return;const c=$('confetti'),x=c.getContext('2d');const W=c.width=innerWidth*devicePixelRatio,H=c.height=innerHeight*devicePixelRatio;
+  const cols=['#f06a1d','#ffd27f','#8f9ae3','#1e9a5a','#ffffff','#4a57a8'];const P=Array.from({length:160},()=>({x:W/2+(Math.random()-.5)*W*.2,y:H*.45,vx:(Math.random()-.5)*W*.018,vy:-Math.random()*H*.022-H*.006,s:(6+Math.random()*8)*devicePixelRatio,r:Math.random()*6,vr:(Math.random()-.5)*.3,c:cols[Math.random()*cols.length|0]}));
+  let f=0;const tick=()=>{x.clearRect(0,0,W,H);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=H*.0006;p.vx*=.99;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);x.restore();});if(++f<200&&$('rv').classList.contains('open'))requestAnimationFrame(tick);else x.clearRect(0,0,W,H);};tick();}
+let rvTimer;
+function openReveal(){const d=window.__d,pass=d.G==='A'||d.G==='B';const rv=$('rv');
+  $('rvChip').textContent=d.G;$('rvChip').className='chip c'+d.G;
+  const st=$('rvStamp');st.textContent=pass?'PASS':'ยังไม่ผ่าน';st.style.color=pass?'#7be0a6':'#ffb27a';
+  const nm=(d.name||'ลูกค้า').replace(/\s*\(ตัวอย่าง\)/,'');
+  $('rvTitle').textContent=pass?`ยินดีด้วย ${nm} ได้เกรด ${d.G}`:`${nm} ได้เกรด ${d.G} · ${d.G==='C'?'อีกนิดเดียว':'ยังมีทางไปต่อ'}`;
+  const p2=(d.P2||[])[0];
+  $('rvSub').innerHTML=pass?`DSR ${d.dsr.toFixed(1)}% ผ่านเกณฑ์ 40% ${d.G==='A'?'ยื่น 2–3 ธนาคารพร้อมกันได้เลย':'เตรียมเอกสารให้ครบแล้วยื่นได้'}`:`DSR ${d.dsr>500?'—':d.dsr.toFixed(1)+'%'} · ทางที่เร็วที่สุด: ${d.dsr>40&&d.dsr<500?'ลด DSR ให้ไม่เกิน 40% เช่น '+dsrFix(d,40)[0].replace(/<[^>]+>/g,''):p2?p2.fix.replace(/<[^>]+>/g,'').split(' · ')[0]:'ดูแผนการเงินด้านล่าง'}`;
+  $('rvBadges').innerHTML=BADGES.filter(b=>d.badges&&d.badges.includes(b[0])).map(b=>badgeHtml(b,true,false)).join('')||'<span class="bdg off"><i>?</i>ยังไม่มีเหรียญ</span>';
+  rv.classList.remove('go');rv.classList.add('open');document.body.style.overflow='hidden';
+  clearTimeout(rvTimer);requestAnimationFrame(()=>requestAnimationFrame(()=>rv.classList.add('go')));
+  if(pass)rvTimer=setTimeout(confetti,RM?0:1700);
+  $('rvSheet').focus();}
+function closeReveal(){$('rv').classList.remove('open','go');document.body.style.overflow='';}
+document.querySelectorAll('[data-reveal]').forEach(b=>b.addEventListener('click',openReveal));
+$('rvX').addEventListener('click',closeReveal);
+addEventListener('keydown',e=>{if(e.key==='Escape')closeReveal();});
+$('rvSheet').addEventListener('click',()=>{closeReveal();if(matchMedia('(max-width:960px)').matches)setPane('sheet');else $('sheet').scrollIntoView({behavior:'smooth',block:'start'});});
+$('rvOut').addEventListener('click',()=>{closeReveal();openOut();});
+/* playground */
+const PL={};let plTouched=false;
+function plFrom(d,force){if(plTouched&&!force)return;PL.inc=Math.round((d.income-d.coIncN)/500)*500;PL.co=Math.round(d.coIncN/500)*500;PL.debt=Math.round(d.debt/100)*100;PL.price=Math.round((d.loan||1790000)/10000)*10000;PL.rate=d.rate||3.17;PL.term=d.term||30;PL.base=d;plSync();}
+function plFill(el){el.style.setProperty('--p',((el.value-el.min)/(el.max-el.min)*100)+'%');}
+function plSync(){[['plInc','inc'],['plCo','co'],['plDebt','debt'],['plPrice','price'],['plRate','rate'],['plTerm','term']].forEach(([id,k])=>{const el=$(id);if(+el.max<PL[k])el.max=PL[k];el.value=PL[k];plFill(el);});plCalc();}
+function plCalc(){const d=PL.base;if(!d)return;
+  const income=PL.inc+PL.co,pay=pmt(PL.price,PL.rate,PL.term),dsr=income>0?(pay+PL.debt)/income*100:999;
+  const gi=Math.max(dsrIdx(dsr),...d.S.filter(s=>!s.el&&s.k!=='dsr'&&s.k!=='appr'&&s.k!=='term').map(s=>s.g),PL.term>=20?0:PL.term>=15?1:PL.term>=10?2:3);
+  const G=GR[gi],pass=dsr<=40;
+  $('oInc').textContent=baht(PL.inc);$('oCo').textContent=baht(PL.co);$('oDebt').textContent=baht(PL.debt);$('oPrice').textContent=baht(PL.price);$('oRate').textContent=PL.rate.toFixed(2)+'%';$('oTerm').textContent=PL.term+' ปี';
+  const c=$('plChip');if(c.textContent!==G){c.textContent=G;c.className='chip c'+G;if(!RM){c.animate([{transform:'scale(.6) rotate(-10deg)'},{transform:'scale(1.12)'},{transform:'none'}],{duration:450,easing:'cubic-bezier(.3,1.6,.5,1)'});}}
+  $('plTitle').textContent='DSR '+(dsr>500?'—':dsr.toFixed(1)+'%')+(pass?' · ผ่านเกณฑ์':' · ยังไม่ผ่าน');
+  $('plSub').textContent=pass?(dsr<=35?'ได้ A ในวิชา DSR':'ผ่านเกณฑ์ 40% แล้ว'):'ต้องลดอีก '+(dsr>500?'—':(dsr-40).toFixed(1)+' จุด');
+  $('plNeedle').style.left=Math.min(100,dsr)+'%';
+  $('plRows').innerHTML=`<div><span>ค่างวดห้อง</span><b>${baht(pay)}</b></div><div><span>ภาระรวม/เดือน</span><b>${baht(pay+PL.debt)}</b></div><div><span>รายได้รวมที่นับได้</span><b>${baht(income)}</b></div><div><span>ภาระได้ไม่เกิน (40%)</span><b>${baht(income*0.4)}</b></div>`;
+  const from=d.G;$('plDelta').innerHTML=G===from?`เกรดรวมเท่าเดิม (${from})`:`เกรดรวม ${from} → <b>${G}</b> ${gi<d.gi?'ดีขึ้น':'แย่ลง'}`;
+  if(gi>dsrIdx(dsr))$('plDelta').innerHTML+=' · วิชาอื่นยังฉุดเกรดอยู่ ดูทางไปเกรด A ในใบเกรด';}
+[['plInc','inc',0],['plCo','co',0],['plDebt','debt',0],['plPrice','price',0],['plRate','rate',1],['plTerm','term',0]].forEach(([id,k,f])=>$(id).addEventListener('input',e=>{plFill(e.target);PL[k]=f?parseFloat(e.target.value):+e.target.value;plTouched=true;plCalc();}));
+document.querySelectorAll('[data-pl]').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.pl;plFrom(window.__d,true);plTouched=t!=='reset';
+  if(t==='co')PL.co=Math.max(PL.co,15000);if(t==='debt')PL.debt=0;if(t==='cheap')PL.price=Math.max(1200000,Math.round(pv(0.4*(PL.inc+PL.co)-PL.debt,PL.rate,PL.term)/10000)*10000);plSync();}));
+suppressUnlock=true;renderFun(window.__d);suppressUnlock=false;
 
 })();
 </script>
