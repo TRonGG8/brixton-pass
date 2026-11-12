@@ -538,6 +538,25 @@ input:focus,select:focus{outline:none;border-color:var(--orange);box-shadow:0 0 
 .render-strip .chips i{font-style:normal;font-size:12px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:2px 10px}
 @media (max-width:600px){.render-strip{min-height:200px;background-position:center 70%}.render-strip::before{background:linear-gradient(0deg,rgba(14,20,70,.92),rgba(14,20,70,.2))}}
 
+/* v10: extra-income box + dark-mode bands + readable sources */
+.incx{border:1px dashed var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:8px;background:var(--tint)}
+.incx-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.incx-h b{font-size:14px;color:var(--ink)}
+.incx-h span{font-size:12px;color:var(--muted)}
+.incx label{gap:2px}
+.incx .lb{font-weight:600;color:var(--ink);font-size:13.5px}
+.incx small{font-size:12px;color:var(--muted);margin-bottom:2px}
+.incx-n{font-size:12.5px;color:var(--ink);background:var(--paper);border-radius:8px;padding:6px 10px}
+.incx-n:empty{display:none}
+.incx-n b{font-family:var(--f-mono);color:var(--orange)}
+.src{color:var(--ink)!important;font-size:13.5px}
+.src b{font-size:14px}
+.src a{color:var(--navy-2)!important}
+.idea{background:var(--paper)!important}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .band.aqua::before{background:radial-gradient(70% 90% at 90% 0%,rgba(80,190,220,.16),transparent 60%),linear-gradient(180deg,#0f2438,#121a46)}
+ :root:not([data-theme="light"]) .band.tint::before{background:linear-gradient(180deg,rgba(74,87,168,.18),rgba(64,170,200,.08))}}
+:root[data-theme="dark"] .band.aqua::before{background:radial-gradient(70% 90% at 90% 0%,rgba(80,190,220,.16),transparent 60%),linear-gradient(180deg,#0f2438,#121a46)}
+
 .print-only{display:none}
 @media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
 
@@ -703,9 +722,13 @@ input:focus,select:focus{outline:none;border-color:var(--orange);box-shadow:0 0 
           <label>อายุงานหรืออายุกิจการ (ปี)<input id="tenure" class="m" inputmode="decimal"></label>
         </div>
         <label>รายได้หลักต่อเดือน (เงินเดือน หรือกำไรสุทธิจากกิจการ)<input id="inc" class="m" inputmode="numeric"></label>
-        <div class="g2">
-          <label>รายได้ไม่ประจำเฉลี่ย/เดือน (OT คอมมิชชัน โบนัส)<input id="incVar" class="m" inputmode="numeric"></label>
-          <label>รายได้อื่น/เดือน (ค่าเช่า งานเสริม)<input id="incOther" class="m" inputmode="numeric"></label>
+        <div class="incx">
+          <div class="incx-h"><b>รายได้เสริม</b><span>ไม่มีก็เว้นว่างได้</span></div>
+          <div class="g2">
+            <label><span class="lb">OT · โบนัส · คอมมิชชัน</span><small>เฉลี่ยต่อเดือน</small><input id="incVar" class="m" inputmode="numeric" placeholder="0"></label>
+            <label><span class="lb">ค่าเช่า · งานเสริม</span><small>ต่อเดือน</small><input id="incOther" class="m" inputmode="numeric" placeholder="0"></label>
+          </div>
+          <div class="incx-n" id="incNote"></div>
         </div>
         <label>หลักฐานรายได้
           <select id="proof">
@@ -716,7 +739,6 @@ input:focus,select:focus{outline:none;border-color:var(--orange);box-shadow:0 0 
             <option value="none">พิสูจน์รายได้ไม่ได้</option>
           </select></label>
         <label>รับเงินผ่าน<select id="payin"><option value="bank">โอนเข้าบัญชีทุกเดือน</option><option value="cash">รับเงินสด (บางส่วนหรือทั้งหมด)</option></select></label>
-        <p class="hint">ทีมนับรายได้ไม่ประจำและรายได้อื่นที่ 50% เพราะธนาคารมักไม่นับเต็มจำนวน</p>
       </div>
 
       <div class="card" id="step3" data-step="3"><h3><span class="k">3</span>หนี้สินปัจจุบัน</h3>
@@ -1562,7 +1584,7 @@ $('bCsv').addEventListener('click',()=>{
 
 /* events + boot */
 document.querySelectorAll('.presets button').forEach(b=>b.addEventListener('click',()=>{setForm(PRESET[b.dataset.p]);curId=null;tabTouched=false;render();}));
-$('f').addEventListener('input',render);$('f').addEventListener('change',render);$('f').addEventListener('submit',e=>e.preventDefault());
+$('f').addEventListener('input',()=>render());$('f').addEventListener('change',()=>render());$('f').addEventListener('submit',e=>e.preventDefault());
 let draft=null;try{draft=JSON.parse(localStorage.getItem('bp-draft')||'null');}catch(e){}
 setForm(draft||PRESET.b);render();
 
@@ -1621,6 +1643,7 @@ const ICON={dsr:'%',debt:'↓',save:'฿',credit:'✓',docs:'▤',team:'+',budge
 let prevBadges=null,unlockT;
 function badgeHtml(b,on,isNew){return `<span class="bdg ${on?'':'off'} ${isNew?'new':''}"><i>${ICON[b[0]]}</i>${b[1]}</span>`;}
 function renderFun(d){
+  const ex=d.incVar+d.incOther;$('incNote').innerHTML=ex>0?`รวมรายได้เสริม ${baht(ex)} · ธนาคารนับให้ครึ่งเดียว = <b>${baht(ex*0.5)}</b>/เดือน`:'';
   const got=BADGES.filter(b=>{try{return b[2](d);}catch(e){return false;}}).map(b=>b[0]);
   const fresh=prevBadges?got.filter(k=>!prevBadges.includes(k)):[];
   $('bdgs').innerHTML=BADGES.map(b=>badgeHtml(b,got.includes(b[0]),fresh.includes(b[0]))).join('');
