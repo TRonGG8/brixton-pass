@@ -1638,6 +1638,10 @@ function comfy(d){
   const saveT=Math.max(500,Math.round(G*0.20/100)*100);
   const liveNow=d.exLive;
   const liveCap=G-pay-debtT-fixed-saveT;
+  /* never plan to save less than now: if spending already fits, keep it and put the rest into savings */
+  const keepLive=liveNow>0&&liveNow<=liveCap;
+  const liveP=keepLive?liveNow:Math.max(0,liveCap);
+  const saveP=Math.max(saveT,Math.round(G-pay-debtT-fixed-liveP));
   const efNeed=Math.max(0,6*pay-Math.max(0,d.sav-d.gap));
   const chk=[
     [okIn&&d.dsr<=40,'DSR ไม่เกิน 40% (ผ่านเกณฑ์)',okIn?`ตอนนี้ ${d.dsr.toFixed(1)}%`+(need40>0?` · ต้องลดค่าผ่อนรวม <b>${baht(need40)}</b>/เดือน`:''):'กรอกรายได้และราคาห้องก่อน'],
@@ -1658,11 +1662,11 @@ function comfy(d){
   }else{const hot=ds.filter(x=>x.hot);if(hot.length)doL.push(`โปะ ${hot.map(x=>x.n).join(' + ')} (ยอด ${baht(hot.reduce((s,x)=>s+x.b,0))}) ให้หมดก่อนโอน ดอกเบี้ยแพงกว่าบ้านหลายเท่า`);}
   if(liveNow>0&&liveNow>liveCap)doL.push(`คุมค่ากิน เดินทาง และครอบครัวไม่เกิน <b>${baht(Math.max(0,liveCap))}</b>/เดือน (วันละ ${baht(Math.max(0,liveCap)/30)}) ต้องลดจากตอนนี้ ${baht(liveNow-liveCap)}`);
   else if(liveCap>0)doL.push(`ใช้จ่ายรายวันได้ไม่เกิน <b>${baht(liveCap)}</b>/เดือน หรือวันละ <b>${baht(liveCap/30)}</b> โดยยังเหลือเก็บ`);
-  doL.push(`ตั้งโอนออมอัตโนมัติ <b>${baht(saveT)}</b>/เดือน ในวันเงินเดือนออก`+(efNeed>0?` จนเงินสำรองถึง ${baht(6*pay)}`:''));
+  doL.push(`ตั้งโอนออมอัตโนมัติ <b>${baht(saveP)}</b>/เดือน ในวันเงินเดือนออก`+(efNeed>0?` จนเงินสำรองถึง ${baht(6*pay)}`:''));
   doL.push('ห้ามก่อหนี้ใหม่ ห้ามสมัครบัตร และห้ามผ่อน 0% ตั้งแต่วันนี้ถึงวันโอน');
   const nOk=chk.filter(c=>c[0]).length;
   const vd=!(okIn&&d.dsr<=40)||d.credit==='now'?['no','ยังไม่ควรกู้ตอนนี้ ทำตามข้อ 1–2 ก่อน']:nOk===chk.length?['ok','กู้ได้สบายใจ ผ่าน 7/7 ข้อ']:['mid',`ผ่านเกณฑ์ แต่ยังตึง ผ่าน ${nOk}/7 ข้อ`];
-  return {ds,need40,need35,fixed,debtT,saveT,liveNow,liveCap,chk,doL:doL.slice(0,4),vd,pay,G,inc,efNeed};
+  return {ds,need40,need35,fixed,debtT,saveT,saveP,liveP,keepLive,liveNow,liveCap,chk,doL:doL.slice(0,4),vd,pay,G,inc,efNeed};
 }
 
 /* ===== contact & next step (fill in real project contact here) ===== */
@@ -1689,12 +1693,12 @@ function renderComfy(d){
   $('cmDebtH').innerHTML=c.ds.length?(c.need40>0?`ต้องลดค่าผ่อนรวมอย่างน้อย <b>${baht(c.need40)}</b>/เดือน ถึงจะผ่าน 40% · ตัวเลขขวาคือ DSR หลังปิดถึงข้อนั้น`:'ผ่าน 40% แล้ว เรียงตามดอกเบี้ย ปิดตัวแพงก่อนจะสบายขึ้น · ตัวเลขขวาคือ DSR หลังปิดถึงข้อนั้น'):'';
   $('cmDebt').innerHTML=c.ds.length?c.ds.map((x,i)=>`<li class="${x.cls}"><span class="k">${i+1}</span><span><b>${x.n}</b><small>ยอด ${baht(x.b)} · ผ่อน ${baht(x.m)}/ด. · ${x.why}</small></span><span class="to">${x.after.toFixed(1)}%<small>DSR</small></span><span class="act">${x.act}</span></li>`).join('')
     :'<li class="keep"><span class="k">✓</span><span><b>ไม่มีหนี้เดิม</b><small>รักษาไว้ ไม่ก่อหนี้ใหม่จนถึงวันโอน</small></span><span class="to"></span></li>';
-  const G=Math.max(1,c.G),rows=[['ค่างวดคอนโด',c.pay,c.pay,'var(--navy-2)',`${(c.pay/G*100).toFixed(0)}% ของรายได้`],['หนี้อื่น',d.debt,c.debtT,'var(--gF)',''],['ส่วนกลาง+ประกัน',c.fixed,c.fixed,'var(--gC)',''],['ออม/เผื่อฉุกเฉิน',Math.max(0,d.resid),c.saveT,'var(--gA)','อย่างน้อย 20%'],['ค่าครองชีพ+ครอบครัว',c.liveNow,Math.max(0,c.liveCap),'var(--orange)','ใช้ได้ไม่เกิน']];
+  const G=Math.max(1,c.G),rows=[['ค่างวดคอนโด',c.pay,c.pay,'var(--navy-2)',`${(c.pay/G*100).toFixed(0)}% ของรายได้`],['หนี้อื่น',d.debt,c.debtT,'var(--gF)',''],['ส่วนกลาง+ประกัน',c.fixed,c.fixed,'var(--gC)',''],['ออม/เผื่อฉุกเฉิน',Math.max(0,d.resid),c.saveP,'var(--gA)','อย่างน้อย 20%'],['ค่าครองชีพ+ครอบครัว',c.liveNow,c.liveP,'var(--orange)',c.keepLive?'ใช้เท่าเดิม':'ใช้ได้ไม่เกิน']];
   $('cmBar').innerHTML=rows.map(r=>`<span style="width:${Math.max(0,r[2])/G*100}%;background:${r[3]}" title="${r[0]}"></span>`).join('');
   $('cmBud').innerHTML=`<div class="r h"><span></span><span style="text-align:left">รายได้ทั้งหมด ${baht(c.G)}/ด.</span><span>ตอนนี้</span><span>แนะนำ</span></div>`+rows.map((r,i)=>`<div class="r${i===4?' big':''}"><i style="background:${r[3]}"></i><span>${r[0]}${r[4]?` <small style="color:var(--muted)">${r[4]}</small>`:''}</span><span class="a">${fmt(r[1])}</span><span class="b">${fmt(Math.max(0,r[2]))}</span></div>`).join('');
   $('cmLive').innerHTML=c.liveCap<=0?`รายได้ยังไม่พอทั้งค่างวดและค่าครองชีพ ควรเพิ่มผู้กู้ร่วม หรือเลือกวงเงินต่ำลง`
     :c.liveNow===0?`กรอกค่าใช้จ่ายในขั้นที่ 7 เพื่อเทียบ · งบที่ใช้ได้ <b>${baht(c.liveCap)}</b>/เดือน หรือวันละ <b>${baht(c.liveCap/30)}</b>`
-    :c.liveNow<=c.liveCap?`ใช้อยู่ ${baht(c.liveNow)} อยู่ในงบ เหลือเผื่ออีก <b>${baht(c.liveCap-c.liveNow)}</b>/เดือน · ใช้ได้วันละ <b>${baht(c.liveCap/30)}</b>`
+    :c.liveNow<=c.liveCap?`ใช้อยู่ ${baht(c.liveNow)} อยู่ในงบแล้ว ใช้เท่าเดิมต่อไป แล้วเก็บส่วนที่เหลือทั้งหมด <b>${baht(c.saveP)}</b>/เดือน (มากกว่าขั้นต่ำ 20% ที่ ${baht(c.saveT)}) · เพดานค่าครองชีพคือ ${baht(c.liveCap)}`
     :`ใช้อยู่ ${baht(c.liveNow)} เกินงบ <b>${baht(c.liveNow-c.liveCap)}</b>/เดือน ลดให้เหลือวันละ <b>${baht(c.liveCap/30)}</b>`;
   $('cmChk').innerHTML=c.chk.map(x=>`<li class="${x[0]?'y':''}"><span class="m">${x[0]?'✓':'!'}</span><span>${x[1]}<small>${x[2]}</small></span></li>`).join('');
 }
@@ -1910,7 +1914,7 @@ function buildReport(d){
    <div class="box gl"><div style="font:700 18px var(--f-disp);color:${d.CM.vd[0]==='ok'?GC.A:d.CM.vd[0]==='mid'?GC.C:GC.F}">${d.CM.vd[1]}</div></div>
    <div class="box"><b>ทำ 4 อย่างนี้ตามลำดับ</b><ol>${d.CM.doL.map(x=>`<li>${x}</li>`).join('')}</ol></div>
    <div class="box"><b>ลดหนี้ตัวไหนก่อน</b>${d.CM.need40>0?`<div>ต้องลดค่าผ่อนรวมอย่างน้อย ${baht(d.CM.need40)}/เดือน จึงผ่าน 40%</div>`:''}<table style="margin-top:6px"><tr><th>ลำดับ</th><th>หนี้</th><th>ยอดคงเหลือ</th><th>ผ่อน/เดือน</th><th>ดอกเบี้ย</th><th>ทำอะไร</th><th>DSR หลังปิด</th></tr>${d.CM.ds.length?d.CM.ds.map((x,i)=>`<tr><td>${i+1}</td><td>${x.n}</td><td>${baht(x.b)}</td><td>${baht(x.m)}</td><td>${x.why}</td><td>${x.act}</td><td>${x.after.toFixed(1)}%</td></tr>`).join(''):'<tr><td colspan="7">ไม่มีหนี้เดิม รักษาไว้จนถึงวันโอน</td></tr>'}</table></div>
-   <div class="box"><b>งบใช้จ่ายต่อเดือน (รายได้ทั้งหมด ${baht(d.CM.G)})</b><table style="margin-top:6px"><tr><th>รายการ</th><th>ตอนนี้</th><th>แนะนำ</th></tr><tr><td>ค่างวดคอนโด</td><td>${baht(d.CM.pay)}</td><td>${baht(d.CM.pay)}</td></tr><tr><td>หนี้อื่น</td><td>${baht(d.debt)}</td><td>ไม่เกิน ${baht(d.CM.debtT)}</td></tr><tr><td>ส่วนกลาง + ประกัน</td><td>${baht(d.CM.fixed)}</td><td>${baht(d.CM.fixed)}</td></tr><tr><td>ออม / เผื่อฉุกเฉิน (20%)</td><td>${baht(Math.max(0,d.resid))}</td><td>อย่างน้อย ${baht(d.CM.saveT)}</td></tr><tr><th>ค่าครองชีพ + ครอบครัว</th><th>${baht(d.CM.liveNow)}</th><th>ไม่เกิน ${baht(Math.max(0,d.CM.liveCap))} (วันละ ${baht(Math.max(0,d.CM.liveCap)/30)})</th></tr></table><div style="margin-top:6px">${esc($('cmLive').textContent)}</div></div>
+   <div class="box"><b>งบใช้จ่ายต่อเดือน (รายได้ทั้งหมด ${baht(d.CM.G)})</b><table style="margin-top:6px"><tr><th>รายการ</th><th>ตอนนี้</th><th>แนะนำ</th></tr><tr><td>ค่างวดคอนโด</td><td>${baht(d.CM.pay)}</td><td>${baht(d.CM.pay)}</td></tr><tr><td>หนี้อื่น</td><td>${baht(d.debt)}</td><td>ไม่เกิน ${baht(d.CM.debtT)}</td></tr><tr><td>ส่วนกลาง + ประกัน</td><td>${baht(d.CM.fixed)}</td><td>${baht(d.CM.fixed)}</td></tr><tr><td>ออม / เผื่อฉุกเฉิน (20%)</td><td>${baht(Math.max(0,d.resid))}</td><td>${baht(d.CM.saveP)} (ขั้นต่ำ ${baht(d.CM.saveT)})</td></tr><tr><th>ค่าครองชีพ + ครอบครัว</th><th>${baht(d.CM.liveNow)}</th><th>${d.CM.keepLive?baht(d.CM.liveP)+' (เท่าเดิม · เพดาน '+baht(d.CM.liveCap)+')':'ไม่เกิน '+baht(Math.max(0,d.CM.liveCap))+' (วันละ '+baht(Math.max(0,d.CM.liveCap)/30)+')'}</th></tr></table><div style="margin-top:6px">${esc($('cmLive').textContent)}</div></div>
    <div class="box"><b>เช็กลิสต์กู้สบายใจ</b><table style="margin-top:6px">${d.CM.chk.map(x=>`<tr><td style="width:34px;text-align:center;font-weight:700;color:${x[0]?GC.A:GC.F}">${x[0]?'✓':'✗'}</td><td>${x[1]}</td><td>${x[2].replace(/<[^>]+>/g,'')}</td></tr>`).join('')}</table></div>
    <div class="foot"><span>ดอกเบี้ยหนี้แต่ละประเภทเป็นค่าประมาณตามเพดานที่ ธปท. กำหนด · ตรวจกับสัญญาจริงของลูกค้า</span><span>หน้า 3/3</span></div></div>`;
 }
