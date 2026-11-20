@@ -1806,7 +1806,7 @@ async function makePdf(){
   if(document.fonts&&document.fonts.ready)await document.fonts.ready;
   const {jsPDF}=window.jspdf;const pdf=new jsPDF({unit:'mm',format:'a4'});
   const ids=['rp1','rp2','rp3'];
-  for(let i=0;i<ids.length;i++){const c=await html2canvas($(ids[i]),{scale:2,backgroundColor:'#ffffff',logging:false});if(i)pdf.addPage();pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',0,0,210,297);}
+  for(let i=0;i<ids.length;i++){const c=await html2canvas($(ids[i]),{scale:1.6,backgroundColor:'#ffffff',logging:false});if(i)pdf.addPage();pdf.addImage(c.toDataURL('image/jpeg',0.88),'JPEG',0,0,210,297);}
   $('report').innerHTML='';
   return pdf.output('blob');
 }
@@ -1926,12 +1926,14 @@ async function deliver(blob,name,btn){
   setTimeout(()=>URL.revokeObjectURL(url),60000);
   outMsg(isTouch?'เปิดไฟล์ PDF แล้ว กดปุ่มแชร์ในหน้า PDF แล้วเลือก "พิมพ์" หรือ "บันทึกลงไฟล์"':'ดาวน์โหลด PDF แล้ว');
 }
-async function useReady(btn){if(ready&&ready.btn===btn){const r=ready;try{await navigator.share({files:[r.file],title:r.name});}catch(e){}return true;}return false;}
+async function useReady(btn){if(ready&&ready.btn===btn){const r=ready;ready=null;btn.classList.remove('ready');btn.querySelector('b').textContent=btn.dataset.t;await deliver(r.blob,r.name,btn);return true;}return false;}
 $('oPdf').addEventListener('click',async()=>{const b=$('oPdf');if(await useReady(b))return;
   if(!window.html2canvas||!window.jspdf){outMsg('ต้องต่ออินเทอร์เน็ตเพื่อสร้าง PDF ใบเกรด ตอนนี้ใช้ "สั่งพิมพ์จากเบราว์เซอร์" แทนได้');return;}
   b.disabled=true;outMsg('กำลังสร้าง PDF…');
-  try{const blob=await makePdf();const nm=(window.__d.name||'ลูกค้า').replace(/\s*\(ตัวอย่าง\)/,'').replace(/[\\/:*?"<>|]/g,'');outMsg('');await deliver(blob,`Brixton-Pass-${nm}-${window.__d.G}.pdf`,b);}
-  catch(e){outMsg('สร้าง PDF ไม่สำเร็จ ลองอีกครั้ง หรือใช้ "สั่งพิมพ์จากเบราว์เซอร์"');}
+  try{const blob=await makePdf();const nm=(window.__d.name||'ลูกค้า').replace(/\s*\(ตัวอย่าง\)/,'').replace(/[\\/:*?"<>|]/g,'');
+    /* generating takes seconds, so browsers drop the tap; ask for a fresh tap to save */
+    ready={blob,name:`Brixton-Pass-${nm}-${window.__d.G}.pdf`,file:new File([blob],`Brixton-Pass-${nm}-${window.__d.G}.pdf`,{type:'application/pdf'}),btn:b};b.classList.add('ready');b.querySelector('b').textContent='PDF พร้อมแล้ว · แตะอีกครั้งเพื่อบันทึก';outMsg('');}
+  catch(e){outMsg('สร้าง PDF ไม่สำเร็จ ('+((e&&e.message)||e)+') ลองอีกครั้ง หรือใช้ "สั่งพิมพ์จากเบราว์เซอร์"');}
   b.disabled=false;});
 $('oBlank').addEventListener('click',async()=>{const b=$('oBlank');if(await useReady(b))return;await deliver(b64Blob(PAPER_B64,'application/pdf'),'Brixton-Pass-ใบกรองเปล่า.pdf',b);});
 $('oPrint').addEventListener('click',()=>{if(framed){outMsg('หน้าต่างนี้สั่งพิมพ์ตรงไม่ได้ ใช้ PDF ด้านบน หรือเปิดเว็บไซต์ / ไฟล์ brixton-pass-local.html');return;}closeOut();setTimeout(()=>$('bPrint').click(),80);});
