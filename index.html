@@ -1914,12 +1914,15 @@ function buildReport(d){
    <div class="box"><b>เช็กลิสต์กู้สบายใจ</b><table style="margin-top:6px">${d.CM.chk.map(x=>`<tr><td style="width:34px;text-align:center;font-weight:700;color:${x[0]?GC.A:GC.F}">${x[0]?'✓':'✗'}</td><td>${x[1]}</td><td>${x[2].replace(/<[^>]+>/g,'')}</td></tr>`).join('')}</table></div>
    <div class="foot"><span>ดอกเบี้ยหนี้แต่ละประเภทเป็นค่าประมาณตามเพดานที่ ธปท. กำหนด · ตรวจกับสัญญาจริงของลูกค้า</span><span>หน้า 3/3</span></div></div>`;
 }
-async function makePdf(){
+async function makePdf(onProg){
   const d=window.__d;$('report').innerHTML=buildReport(d);
   if(document.fonts&&document.fonts.ready)await document.fonts.ready;
   const {jsPDF}=window.jspdf;const pdf=new jsPDF({unit:'mm',format:'a4'});
   const ids=['rp1','rp2','rp3'];
-  for(let i=0;i<ids.length;i++){const c=await html2canvas($(ids[i]),{scale:1.6,backgroundColor:'#ffffff',logging:false});if(i)pdf.addPage();pdf.addImage(c.toDataURL('image/jpeg',0.88),'JPEG',0,0,210,297);}
+  const sc=isTouch?1.3:1.6;
+  for(let i=0;i<ids.length;i++){if(onProg)onProg(i+1,ids.length);
+    const c=await Promise.race([html2canvas($(ids[i]),{scale:sc,backgroundColor:'#ffffff',logging:false,imageTimeout:8000,useCORS:true}),new Promise((_,rj)=>setTimeout(()=>rj(new Error('หน้า '+(i+1)+' ใช้เวลานานเกินไป')),30000))]);
+    if(i)pdf.addPage();pdf.addImage(c.toDataURL('image/jpeg',0.85),'JPEG',0,0,210,297);c.width=c.height=0;}
   $('report').innerHTML='';
   return pdf.output('blob');
 }
@@ -2018,7 +2021,12 @@ function b64Blob(b,t){const bin=atob(b);const u=new Uint8Array(bin.length);for(l
 const isTouch=matchMedia('(pointer:coarse)').matches||/iPad|iPhone|Android/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 let ready=null;
 function outMsg(t){$('outMsg').textContent=t||'';}
-function openOut(){resetReady();outMsg('');$('outSheet').classList.add('open');$('oPdf').focus();}
+let pdfJob=null;
+function pdfSig(){try{return JSON.stringify(getForm());}catch(e){return String(Date.now());}}
+function pdfName(){const nm=(window.__d.name||'ลูกค้า').replace(/\s*\(ตัวอย่าง\)/,'').replace(/[\\/:*?"<>|]/g,'');return `Brixton-Pass-${nm}-${window.__d.G}.pdf`;}
+function startPdf(){const sig=pdfSig();if(pdfJob&&pdfJob.sig===sig)return pdfJob;if(!window.html2canvas||!window.jspdf)return null;
+  const job={sig,done:false,blob:null,err:null,page:0};job.p=makePdf((i,n)=>{job.page=i;if(job.onProg)job.onProg(i,n);}).then(b=>{job.blob=b;job.done=true;return b;},e=>{job.err=e;job.done=true;if(pdfJob===job)pdfJob=null;throw e;});job.p.catch(()=>{});pdfJob=job;return job;}
+function openOut(){resetReady();outMsg('');$('outSheet').classList.add('open');$('oPdf').focus();setTimeout(()=>{try{startPdf();}catch(e){}},50);}
 function closeOut(){$('outSheet').classList.remove('open');}
 function resetReady(){if(ready&&ready.url)URL.revokeObjectURL(ready.url);ready=null;document.querySelectorAll('.out-opt.ready').forEach(x=>{x.classList.remove('ready');x.querySelector('b').textContent=x.dataset.t;});}
 document.querySelectorAll('.out-opt').forEach(x=>x.dataset.t=x.querySelector('b').textContent);
@@ -2031,9 +2039,8 @@ async function deliver(blob,name,btn){
   /* 2) share sheet (iOS/Android: Print, Save to Files, LINE) */
   const file=new File([blob],name,{type:blob.type});
   if(navigator.canShare&&navigator.canShare({files:[file]})){
-    try{await navigator.share({files:[file],title:name});outMsg('');return;}
-    catch(e){if(e&&e.name==='AbortError'){outMsg('');return;}
-      if(e&&e.name==='NotAllowedError'){ready={blob,name,file,btn};btn.classList.add('ready');btn.querySelector('b').textContent='PDF พร้อมแล้ว · แตะอีกครั้งเพื่อแชร์หรือพิมพ์';outMsg('');return;}}}
+    if(isTouch){try{await navigator.share({files:[file],title:name});outMsg('');return;}
+    catch(e){if(e&&e.name==='AbortError'){outMsg('');return;}}}}
   /* 3) open / download the file */
   const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),60000);
@@ -2042,12 +2049,16 @@ async function deliver(blob,name,btn){
 async function useReady(btn){if(ready&&ready.btn===btn){const r=ready;ready=null;btn.classList.remove('ready');btn.querySelector('b').textContent=btn.dataset.t;await deliver(r.blob,r.name,btn);return true;}return false;}
 $('oPdf').addEventListener('click',async()=>{const b=$('oPdf');if(await useReady(b))return;
   if(!window.html2canvas||!window.jspdf){outMsg('ต้องต่ออินเทอร์เน็ตเพื่อสร้าง PDF ใบเกรด ตอนนี้ใช้ "สั่งพิมพ์จากเบราว์เซอร์" แทนได้');return;}
-  b.disabled=true;outMsg('กำลังสร้าง PDF…');
-  try{const blob=await makePdf();const nm=(window.__d.name||'ลูกค้า').replace(/\s*\(ตัวอย่าง\)/,'').replace(/[\\/:*?"<>|]/g,'');
-    /* generating takes seconds, so browsers drop the tap; ask for a fresh tap to save */
-    ready={blob,name:`Brixton-Pass-${nm}-${window.__d.G}.pdf`,file:new File([blob],`Brixton-Pass-${nm}-${window.__d.G}.pdf`,{type:'application/pdf'}),btn:b};b.classList.add('ready');b.querySelector('b').textContent='PDF พร้อมแล้ว · แตะอีกครั้งเพื่อบันทึก';outMsg(isTouch?'iPhone / iPad: แตะอีกครั้ง แล้วเลือก "บันทึกไปยังไฟล์" (Save to Files) หรือส่งเข้า LINE':'แตะอีกครั้ง ไฟล์จะไปอยู่ในโฟลเดอร์ดาวน์โหลด (Downloads)');}
-  catch(e){outMsg('สร้าง PDF ไม่สำเร็จ ('+((e&&e.message)||e)+') ลองอีกครั้ง หรือใช้ "สั่งพิมพ์จากเบราว์เซอร์"');}
-  b.disabled=false;});
+  const job=startPdf();const name=pdfName();
+  /* already built in the background: save right away while the tap still counts */
+  if(job.done&&job.blob){await deliver(job.blob,name,b);return;}
+  b.disabled=true;const prog=(i,n)=>outMsg(`กำลังสร้าง PDF หน้า ${i}/${n}…`);job.onProg=prog;prog(Math.max(1,job.page),3);
+  try{const blob=await job.p;
+    if(!isTouch&&!framed){outMsg('');await deliver(blob,name,b);}
+    else{ready={blob,name,file:new File([blob],name,{type:'application/pdf'}),btn:b};b.classList.add('ready');b.querySelector('b').textContent='PDF พร้อมแล้ว · แตะอีกครั้งเพื่อบันทึก';outMsg(isTouch?'iPhone / iPad: แตะอีกครั้ง แล้วเลือก "บันทึกไปยังไฟล์" (Save to Files) หรือส่งเข้า LINE':'แตะอีกครั้งเพื่อดาวน์โหลด');}}
+  catch(e){outMsg('สร้าง PDF ไม่สำเร็จ ('+((e&&e.message)||e)+') ลองกดอีกครั้ง หรือใช้ "สั่งพิมพ์จากเบราว์เซอร์"');}
+  finally{b.disabled=false;job.onProg=null;}
+});
 $('oBlank').addEventListener('click',async()=>{const b=$('oBlank');if(await useReady(b))return;await deliver(b64Blob(PAPER_B64,'application/pdf'),'Brixton-Pass-ใบกรองเปล่า.pdf',b);});
 $('oPrint').addEventListener('click',()=>{if(framed){outMsg('หน้าต่างนี้สั่งพิมพ์ตรงไม่ได้ ใช้ PDF ด้านบน หรือเปิดเว็บไซต์ / ไฟล์ brixton-pass-local.html');return;}closeOut();setTimeout(()=>$('bPrint').click(),80);});
 $('oCsv').addEventListener('click',()=>{if(framed){outMsg('ส่งออก CSV ได้ในเว็บไซต์หรือไฟล์ local');return;}$('bCsv').click();});
