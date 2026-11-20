@@ -896,6 +896,16 @@ details.more .g2{margin-top:10px}
 }
 .form label.dtog{display:flex!important;flex-direction:row;align-items:flex-start;gap:8px;font-weight:400}.form label.dtog input{flex:none;width:18px;height:18px;margin-top:2px}
 body.pending #stamp,body.pending #light{visibility:hidden}
+
+/* uniform form controls (Safari/Chrome alike) */
+.form label,.qc-in label{align-content:start}
+.form input:not([type=checkbox]):not([type=radio]),.form select,.qc-in input{box-sizing:border-box;height:46px;line-height:1.3;padding:0 12px;border-radius:10px}
+.form input.m,.qc-in input{font-size:16px;letter-spacing:0}
+.form select{-webkit-appearance:none;appearance:none;padding-right:34px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%235c6480' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;text-overflow:ellipsis;white-space:nowrap}
+.form .debt input{height:40px;padding:0 10px}
+.warn:empty{display:none}
+.form label>span:first-child{min-height:1.4em}
+.toolbar #bPrint,.toolbar #bPrintBlank,.toolbar #bCsv,.toolbar #bNew{display:none!important}
 </style>
 
 <div class="screen-only">
@@ -967,7 +977,7 @@ body.pending #stamp,body.pending #light{visibility:hidden}
   <div class="sec-head">
     <span class="eyebrow">ด่าน P · Pre-check · กรอกละเอียด</span>
     <h2>ใบกรอง Brixton Pass</h2>
-    <p>กรอกข้อมูลของคุณ (หรือกดดูตัวอย่างลูกค้า) เกรดด้านขวาเปลี่ยนทันที ช่องตัวเลขใส่ลูกน้ำให้อัตโนมัติ กด "ใบใหม่" เพื่อเริ่มกรอกของตัวเอง</p>
+    <p>กรอกข้อมูลของคุณ (หรือกดดูตัวอย่างลูกค้า) เกรดด้านขวาเปลี่ยนทันที ช่องตัวเลขใส่ลูกน้ำให้อัตโนมัติ กด "เริ่มกรองของฉัน" เพื่อเริ่มใบว่าง</p>
   </div>
   <div class="qc" id="quick">
     <div class="qc-h"><h3>เช็กเร็ว 30 วินาที: กู้ผ่านไหม</h3><span>ใส่ 3 ตัวเลข ไม่ต้องใส่ชื่อ ไม่มีการบันทึก</span></div>
@@ -995,7 +1005,7 @@ body.pending #stamp,body.pending #light{visibility:hidden}
     <button class="btn btn-line local-only" id="bPrint" type="button">พิมพ์ใบเกรดที่กรอกแล้ว</button>
     <button class="btn btn-line local-only" id="bPrintBlank" type="button">พิมพ์ใบกรองเปล่า</button>
     <button class="btn btn-line local-only" id="bCsv" type="button">ส่งออกรายการ (CSV)</button>
-    <button class="btn btn-line" id="bOut" type="button">PDF / แชร์</button>
+    <button class="btn btn-line" id="bOut" type="button">PDF / พิมพ์ / แชร์</button>
     <button class="btn btn-line framed-only" id="bPdf" type="button" hidden>ดาวน์โหลด PDF ใบเกรด</button>
     <button class="btn btn-line" id="bNew" type="button">ใบใหม่</button>
     <span class="sp"></span>
@@ -1032,10 +1042,10 @@ body.pending #stamp,body.pending #light{visibility:hidden}
         <div class="g3">
           <label><span>อายุ (ปี) <b class="req">*</b></span><input id="age" class="m" inputmode="numeric"><small class="warn" id="wAge"></small></label>
           <label>สถานภาพ<select id="marital"><option value="single">โสด</option><option value="married">สมรส</option><option value="div">หย่า/หม้าย</option></select></label>
-          <label>คนที่ต้องเลี้ยงดู (ลูก พ่อแม่)<input id="deps" class="m" inputmode="numeric"></label>
+          <label>คนที่ต้องดูแล<input id="deps" title="ลูก พ่อแม่ หรือคนในบ้านที่ต้องส่งเสีย" class="m" inputmode="numeric"></label>
         </div>
         <div class="g2">
-          <label>ซื้อไว้ทำอะไร<select id="group"><option value="sp">ให้ลูกอยู่ระหว่างเรียน (Smart Parent)</option><option value="cy">ปล่อยเช่า / ลงทุน (Campus Yield)</option><option value="ss">อยู่เอง วัยทำงาน (Start Smart)</option></select></label>
+          <label>ซื้อไว้ทำอะไร<select id="group"><option value="sp">ให้ลูกอยู่ตอนเรียน</option><option value="cy">ปล่อยเช่า / ลงทุน</option><option value="ss">อยู่เอง (วัยทำงาน)</option></select></label>
           <label>สัญญากู้ที่อยู่อาศัย<select id="contract"><option value="1">หลังแรก</option><option value="2">หลังที่ 2</option><option value="3">หลังที่ 3 ขึ้นไป</option></select></label>
         </div>
       </div>
