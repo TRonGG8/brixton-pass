@@ -409,6 +409,12 @@ footer{padding-block:24px 40px;font-size:12px;color:var(--muted)}
 @keyframes up{from{transform:translateY(30px)}to{transform:none}}
 .out-card h3{font-size:18px;display:flex;justify-content:space-between;align-items:center}
 .out-card h3 button{border:0;background:var(--tint);color:var(--ink);border-radius:8px;width:34px;height:34px;font-size:18px}
+.save-pan{border:2px solid var(--orange);border-radius:12px;padding:12px;background:var(--gD-bg);display:grid;gap:8px;text-align:center}
+.save-pan .save-main{display:block;background:var(--orange);color:#fff;font-weight:700;font-size:17px;border-radius:10px;padding:13px 12px;text-decoration:none}
+.save-pan .save-2{font:inherit;font-weight:700;border:1.5px solid var(--navy);background:var(--paper);color:var(--navy);border-radius:10px;padding:10px 12px;cursor:pointer}
+.save-pan p{margin:0;font-size:13.5px;line-height:1.55;color:var(--ink)}
+.inapp{border:2px solid var(--gF);background:var(--gF-bg);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.55;color:var(--ink)}
+.inapp a{display:inline-block;margin-top:6px;background:var(--navy);color:#fff;font-weight:700;border-radius:8px;padding:8px 14px;text-decoration:none}
 .out-opt{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:center;text-align:left;width:100%;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:12px;padding:10px 12px;text-decoration:none;font-size:14px}
 .out-opt:hover,.out-opt:focus-visible{border-color:var(--orange)}
 .out-opt .ic{width:44px;height:44px;border-radius:12px 12px 12px 3px;display:grid;place-items:center;background:linear-gradient(135deg,var(--navy),var(--facade));color:#fff;font-family:var(--f-disp);font-weight:700;font-size:14px}
@@ -1393,9 +1399,11 @@ body.pending #stamp,body.pending #light{visibility:hidden}
 <div class="out-sheet" id="outSheet" role="dialog" aria-modal="true" aria-labelledby="outT">
   <div class="out-card">
     <h3><span id="outT">พิมพ์ / บันทึก PDF</span><button type="button" id="outX" aria-label="ปิด">×</button></h3>
+    <div class="inapp" id="inApp" hidden></div>
     <button type="button" class="out-opt" id="oPdf"><span class="ic">PDF</span><span><b>ใบเกรดของลูกค้าคนนี้</b><small>สร้างเป็น PDF 3 หน้า แล้วแชร์ไปพิมพ์ บันทึกลงไฟล์ หรือส่ง LINE ได้</small></span></button>
+    <div class="save-pan" id="savePan" hidden></div>
     <button type="button" class="out-opt" id="oView"><span class="ic" style="font-size:11px">เว็บ</span><span><b>ใบเกรดแบบหน้าเว็บ (ทางสำรอง)</b><small>ถ้าปุ่มบนบันทึกไม่ได้ เปิดใบเกรดในแท็บใหม่ แล้วกด "บันทึกเป็น PDF" · คอม: เลือก Save as PDF · iPhone: แชร์ → พิมพ์ → บันทึกไปยังไฟล์</small></span></button>
-    <button type="button" class="out-opt" id="oBlank"><span class="ic">A4</span><span><b>ใบกรองเปล่าสำหรับกรอกมือ</b><small>PDF 4 หน้า ใบกรอง ตารางค่างวดต่อล้าน และตารางเกรด</small></span></button>
+    <button type="button" class="out-opt" id="oBlank"><span class="ic">A4</span><span><b>ใบกรองเปล่าสำหรับกรอกมือ</b><small>PDF 6 หน้า ใบกรอง ตารางเกรด ตารางค่างวด และแผนการเงิน</small></span></button>
     <button type="button" class="out-opt" id="oPrint"><span class="ic" style="font-size:12px">พิมพ์</span><span><b>สั่งพิมพ์จากเบราว์เซอร์</b><small>เหมาะกับคอมพิวเตอร์ ถ้าบนมือถือกดแล้วไม่ขึ้น ให้ใช้ PDF ด้านบน</small></span></button>
     <button type="button" class="out-opt" id="oCsv"><span class="ic">CSV</span><span><b>ส่งออกรายการที่บันทึกไว้</b><small>เปิดใน Excel หรือ Google Sheets</small></span></button>
     <div class="out-msg" id="outMsg" role="status"></div>
@@ -2054,7 +2062,7 @@ $('bPdf').addEventListener('click',async()=>{
   if(!dl){toast('หน้าต่างนี้ดาวน์โหลดไม่ได้ ใช้ไฟล์ brixton-pass-local.html ใน Library ของโปรเจกต์ แล้วกดปุ่มพิมพ์ในไฟล์นั้นแทน');return;}
   const b=$('bPdf');b.disabled=true;toast('กำลังสร้าง PDF…');
   try{const blob=await makePdf();const nm=(window.__d.name||'ลูกค้า').replace(/\s*\(ตัวอย่าง\)/,'').replace(/[\\/:*?"<>|]/g,'');
-    await dl.save({filename:`Brixton-Pass-${nm}-${window.__d.G}.pdf`,data:blob});toast('ดาวน์โหลด PDF แล้ว เปิดไฟล์แล้วสั่งพิมพ์ได้เลย');}
+    await dl.save({filename:pdfName(),data:blob});toast('ดาวน์โหลด PDF แล้ว เปิดไฟล์แล้วสั่งพิมพ์ได้เลย');}
   catch(e){toast(e&&e.code==='declined'?'ยกเลิกการดาวน์โหลด':'สร้างหรือบันทึก PDF ไม่สำเร็จ'+(e&&e.code?' ('+e.code+')':''));}
   b.disabled=false;
 });
@@ -2160,16 +2168,34 @@ let ready=null;
 function outMsg(t){$('outMsg').textContent=t||'';}
 let pdfJob=null;
 function pdfSig(){try{return JSON.stringify(getForm());}catch(e){return String(Date.now());}}
-function pdfName(){const nm=(window.__d.name||'ลูกค้า').replace(/\s*\(ตัวอย่าง\)/,'').replace(/[\\/:*?"<>|]/g,'');return `Brixton-Pass-${nm}-${window.__d.G}.pdf`;}
+function pdfName(){const t=new Date(),z=n=>String(n).padStart(2,'0');const id=(window.__d.passId||'').replace(/[^A-Za-z0-9-]/g,'');return `Brixton-Pass-${window.__d.G}-${id||(t.getFullYear()+z(t.getMonth()+1)+z(t.getDate()))}.pdf`;}
 function startPdf(){const sig=pdfSig();if(pdfJob&&pdfJob.sig===sig)return pdfJob;if(!window.html2canvas||!window.jspdf)return null;
   const job={sig,done:false,blob:null,err:null,page:0};job.p=makePdf((i,n)=>{job.page=i;if(job.onProg)job.onProg(i,n);}).then(b=>{job.blob=b;job.done=true;return b;},e=>{job.err=e;job.done=true;if(pdfJob===job)pdfJob=null;throw e;});job.p.catch(()=>{});pdfJob=job;return job;}
-function openOut(){resetReady();outMsg('');$('outSheet').classList.add('open');$('oPdf').focus();setTimeout(()=>{try{startPdf();}catch(e){}},50);}
+function openOut(){resetReady();hideSave();showInApp();outMsg('');$('outSheet').classList.add('open');$('oPdf').focus();setTimeout(()=>{try{startPdf();}catch(e){}},50);}
 function closeOut(){$('outSheet').classList.remove('open');}
 function resetReady(){if(ready&&ready.url)URL.revokeObjectURL(ready.url);ready=null;document.querySelectorAll('.out-opt.ready').forEach(x=>{x.classList.remove('ready');x.querySelector('b').textContent=x.dataset.t;});}
 document.querySelectorAll('.out-opt').forEach(x=>x.dataset.t=x.querySelector('b').textContent);
 $('outX').addEventListener('click',closeOut);
 $('outSheet').addEventListener('click',e=>{if(e.target===$('outSheet'))closeOut();});
 addEventListener('keydown',e=>{if(e.key==='Escape')closeOut();});
+const UA=navigator.userAgent||'';
+const isIOS=/iPad|iPhone|iPod/.test(UA)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const isAndroid=/Android/i.test(UA);
+const inAppName=/\bLine\//i.test(UA)?'LINE':/FBAN|FBAV|FB_IAB/.test(UA)?'Facebook':/Instagram/i.test(UA)?'Instagram':/TikTok|musical_ly|BytedanceWebview/i.test(UA)?'TikTok':'';
+function extUrl(){const u=new URL(location.href);u.searchParams.set('openExternalBrowser','1');return u.toString();}
+function showInApp(){const el=$('inApp');if(!el||!inAppName)return;el.hidden=false;
+  el.innerHTML=`<b>ตอนนี้เปิดเว็บอยู่ในแอป ${inAppName}</b> ซึ่งมักบันทึกไฟล์ PDF ไม่ได้ ให้เปิดใน ${isIOS?'Safari':'Chrome'} ก่อน`+(inAppName==='LINE'?`<br><a href="${esc(extUrl())}">เปิดใน ${isIOS?'Safari':'Chrome'}</a>`:`<br>กดปุ่ม ⋯ มุมขวาบน แล้วเลือก "เปิดในเบราว์เซอร์"`);}
+let saveUrl=null;
+function hideSave(){const p=$('savePan');if(p){p.hidden=true;p.innerHTML='';}if(saveUrl){const u=saveUrl;saveUrl=null;setTimeout(()=>URL.revokeObjectURL(u),120000);}}
+function showSave(blob,name,label){hideSave();saveUrl=URL.createObjectURL(blob);const p=$('savePan');
+  const file=new File([blob],name,{type:blob.type});const canSh=!!(navigator.canShare&&navigator.canShare({files:[file]}));
+  const tip=isIOS?'กดปุ่มส้ม แล้วกด "ดาวน์โหลด" ไฟล์จะอยู่ในแอป <b>ไฟล์ (Files) › ดาวน์โหลด</b> · ถ้าขึ้นเป็นหน้า PDF ให้กดปุ่มแชร์ ⬆ แล้วเลือก "บันทึกไปยังไฟล์"'
+    :isAndroid?'กดปุ่มส้ม ไฟล์จะอยู่ในโฟลเดอร์ <b>ดาวน์โหลด (Downloads)</b> ของเครื่อง':'กดปุ่มส้มเพื่อดาวน์โหลดไฟล์';
+  p.innerHTML=`<p><b>${esc(label||'PDF พร้อมแล้ว')}</b></p><a class="save-main" href="${saveUrl}" download="${esc(name)}" target="_blank" rel="noopener">⬇ บันทึก PDF ลงเครื่อง</a>${canSh?'<button type="button" class="save-2" id="sShare">แชร์ · ส่ง LINE · พิมพ์</button>':''}<p>${tip}</p>`;
+  p.hidden=false;
+  if(canSh)$('sShare').addEventListener('click',async()=>{try{await navigator.share({files:[file],title:name});}catch(e){if(!e||e.name!=='AbortError')outMsg('แชร์ไม่สำเร็จ ใช้ปุ่มส้ม "บันทึก PDF ลงเครื่อง" แทน');}});
+  p.querySelector('.save-main').addEventListener('click',()=>outMsg(isIOS?'ถ้าไม่เห็นไฟล์ เปิดแอป "ไฟล์" แล้วดูที่ ดาวน์โหลด':''));
+  outMsg('');try{p.scrollIntoView({behavior:'smooth',block:'nearest'});}catch(e){}}
 async function deliver(blob,name,btn){
   /* 1) claude.ai downloads capability */
   if(framed&&dl){try{await dl.save({filename:name,data:blob});outMsg('ดาวน์โหลดแล้ว เปิดไฟล์แล้วสั่งพิมพ์ได้เลย');return;}catch(e){if(e&&e.code==='declined'){outMsg('ยกเลิกการดาวน์โหลด');return;}}}
@@ -2188,10 +2214,11 @@ $('oPdf').addEventListener('click',async()=>{const b=$('oPdf');if(await useReady
   if(!window.html2canvas||!window.jspdf){outMsg('ต้องต่ออินเทอร์เน็ตเพื่อสร้าง PDF ใบเกรด ตอนนี้ใช้ "สั่งพิมพ์จากเบราว์เซอร์" แทนได้');return;}
   const job=startPdf();const name=pdfName();
   /* already built in the background: save right away while the tap still counts */
-  if(job.done&&job.blob){await deliver(job.blob,name,b);return;}
+  if(job.done&&job.blob){if(isTouch&&!framed){showSave(job.blob,name,'ใบเกรด PDF 3 หน้า พร้อมแล้ว');return;}await deliver(job.blob,name,b);return;}
   b.disabled=true;const prog=(i,n)=>outMsg(`กำลังสร้าง PDF หน้า ${i}/${n}…`);job.onProg=prog;prog(Math.max(1,job.page),3);
   try{const blob=await job.p;
     if(!isTouch&&!framed){outMsg('');await deliver(blob,name,b);}
+    else if(!framed){showSave(blob,name,'ใบเกรด PDF 3 หน้า พร้อมแล้ว');}
     else{ready={blob,name,file:new File([blob],name,{type:'application/pdf'}),btn:b};b.classList.add('ready');b.querySelector('b').textContent='PDF พร้อมแล้ว · แตะอีกครั้งเพื่อบันทึก';outMsg(isTouch?'iPhone / iPad: แตะอีกครั้ง แล้วเลือก "บันทึกไปยังไฟล์" (Save to Files) หรือส่งเข้า LINE':'แตะอีกครั้งเพื่อดาวน์โหลด');}}
   catch(e){outMsg('สร้าง PDF ไม่สำเร็จ ('+((e&&e.message)||e)+') ใช้ปุ่ม "ใบเกรดแบบหน้าเว็บ (ทางสำรอง)" ด้านล่างแทนได้');$('oView').classList.add('ready');}
   finally{b.disabled=false;job.onProg=null;}
@@ -2210,12 +2237,13 @@ function reportHtml(){const d=window.__d;const css=[...document.querySelectorAll
   @media (max-width:820px){.wrapr{zoom:.46}}
   </style></head><body data-print="filled"><div class="bar"><span>ใบเกรด ${esc(d.name||'')} · กดปุ่มแล้วเลือก "บันทึกเป็น PDF" (Save as PDF)</span><button onclick="window.print()">บันทึกเป็น PDF / พิมพ์</button></div><div class="wrapr"><div id="report">${buildReport(d)}</div></div></body></html>`;}
 $('oView').addEventListener('click',async()=>{const html=reportHtml();
-  let w=null;try{w=window.open('','_blank');}catch(e){}
-  if(w&&w.document){w.document.open();w.document.write(html);w.document.close();outMsg('เปิดใบเกรดในแท็บใหม่แล้ว กดปุ่มสีส้มด้านบน แล้วเลือก "บันทึกเป็น PDF"');return;}
+  const hb=new Blob([html],{type:'text/html;charset=utf-8'});const hu=URL.createObjectURL(hb);setTimeout(()=>URL.revokeObjectURL(hu),600000);
+  let w=null;if(!framed){try{w=window.open(hu,'_blank');}catch(e){}}
+  if(w){outMsg('เปิดใบเกรดในแท็บใหม่แล้ว กดปุ่มสีส้มด้านบน แล้วเลือก "บันทึกเป็น PDF"');return;}
   /* popup blocked (e.g. inside the Claude app): save as a web file instead */
   await deliver(new Blob([html],{type:'text/html'}),pdfName().replace(/\.pdf$/,'.html'),$('oView'));
   outMsg('บันทึกเป็นไฟล์หน้าเว็บแล้ว เปิดไฟล์นั้นในเบราว์เซอร์ แล้วกดปุ่ม "บันทึกเป็น PDF"');});
-$('oBlank').addEventListener('click',async()=>{const b=$('oBlank');if(await useReady(b))return;await deliver(b64Blob(PAPER_B64,'application/pdf'),'Brixton-Pass-ใบกรองเปล่า.pdf',b);});
+$('oBlank').addEventListener('click',async()=>{const b=$('oBlank');if(isTouch&&!framed){showSave(b64Blob(PAPER_B64,'application/pdf'),'Brixton-Pass-blank-form.pdf','ใบกรองเปล่า PDF 6 หน้า พร้อมแล้ว');return;}if(await useReady(b))return;await deliver(b64Blob(PAPER_B64,'application/pdf'),'Brixton-Pass-blank-form.pdf',b);});
 $('oPrint').addEventListener('click',()=>{if(framed){outMsg('หน้าต่างนี้สั่งพิมพ์ตรงไม่ได้ ใช้ PDF ด้านบน หรือเปิดเว็บไซต์ / ไฟล์ brixton-pass-local.html');return;}closeOut();setTimeout(()=>$('bPrint').click(),80);});
 $('oCsv').addEventListener('click',()=>{if(framed){outMsg('ส่งออก CSV ได้ในเว็บไซต์หรือไฟล์ local');return;}$('bCsv').click();});
 $('bOut').addEventListener('click',openOut);
